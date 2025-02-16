@@ -5,7 +5,6 @@ import time
 from PIL import Image
 import io
 import os
-import gdown  # For downloading from Google Drive
 
 app = Flask(__name__, static_folder='static')
 
@@ -13,8 +12,6 @@ app = Flask(__name__, static_folder='static')
 MODEL_PATH = r'models\waste_classification_mobilnet (1).h5'
 
 print("Initializing model...")
-# download_model()
-import os
 
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
