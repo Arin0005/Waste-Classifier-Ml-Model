@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Waste Classification System</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>AI Waste Classification</h1>
+        <p>
+          Upload an image to identify whether waste is organic or recyclable
+        </p>
+      </header>
+
+      <main class="upload-section">
+        <div class="drop-zone" id="dropZone">
+          <p>Drag and drop your image here or click to browse</p>
+          <input
+            type="file"
+            class="file-input"
+            id="fileInput"
+            accept="image/*"
+          />
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+          <img src="" alt="Preview" class="preview-image" id="previewImage" />
+        </div>
+
+        <button class="submit-btn" id="submitBtn">Analyze Image</button>
+        <div class="loading" id="loading"></div>
+      </main>
+
+      <section class="results" id="results">
+        <div class="result-card">
+          <div class="result-label">Classification</div>
+          <div class="result-value" id="wasteType">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Confidence</div>
+          <div class="result-value" id="confidence">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Processing Time</div>
+          <div class="result-value" id="processingTime">-</div>
+        </div>
+      </section>
+
+      <section class="model-info">
+        <h2>About Our AI Model</h2>
+        <p>
+          Our waste classification system uses state-of-the-art deep learning
+          technology based on the MobileNetV2 architecture. The model has been
+          trained on thousands of waste images to ensure accurate
+          classification.
+        </p>
+        <ul class="feature-list">
+          <li class="feature-item">Real-time Analysis</li>
+          <li class="feature-item">High Accuracy</li>
+          <li class="feature-item">Fast Processing</li>
+          <li class="feature-item">Mobile Optimized</li>
+        </ul>
+      </section>
+    </div>
+
+    <script src="/static/script.js"></script>
+  </body>
+</html>
