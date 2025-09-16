@@ -9,7 +9,9 @@ import os
 app = Flask(__name__)
 
 # Model loading configuration
-MODEL_PATH = r'models\waste_classification_mobilnet (1).h5'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "waste_classification_mobilnet.h5")
+
 
 print("Initializing model...")
 
