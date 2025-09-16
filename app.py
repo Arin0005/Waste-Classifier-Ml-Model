@@ -18,10 +18,8 @@ print("Initializing model...")
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
 
+model = tf.keras.models.load_model(MODEL_PATH,compile=False)
 
-model = tf.keras.models.load_model(MODEL_PATH)
-
-model = tf.keras.models.load_model(MODEL_PATH)
 img_size = (224, 224)  # Adjust according to model's requirements
 
 
