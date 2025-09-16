@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Waste Classification System</title>
+    <style>
+      /* Root variables for colors */
+      :root {
+        --primary-green: #4caf50;
+        --dark-green: #2e7d32;
+        --hover-green: #45a049;
+        --light-green-bg: #e8f5e9;
+        --lighter-green-bg: #f1f8e9;
+        --soft-green-bg: #f9fbe7;
+        --very-light-green-bg: #fffde7;
+        --gray-text: #666;
+        --white-bg: white;
+        --light-gray-bg: #f8f9fa;
+        --border-orange: #ff9800;
+        --border-hover-orange: rgba(255, 152, 0, 0.1);
+      }
+
+      /* Reset and base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* Smooth scrolling and selection styles */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      ::selection {
+        background: var(--primary-green);
+        color: var(--white-bg);
+      }
+
+      /* Modern gradient background with animation */
+      body {
+        min-height: 100vh;
+        background: linear-gradient(
+          -45deg,
+          var(--light-green-bg),
+          var(--lighter-green-bg),
+          var(--soft-green-bg),
+          var(--very-light-green-bg)
+        );
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        padding: 2rem;
+      }
+
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* Container with glass morphism effect */
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      /* Header styles with animation */
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInDown 0.8s ease;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header h1 {
+        font-size: 2.8em;
+        color: var(--dark-green);
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+      }
+
+      .header p {
+        color: var(--gray-text);
+        font-size: 1.2em;
+        line-height: 1.6;
+      }
+
+      /* Upload section with modern styling */
+      .upload-section {
+        background: var(--white-bg);
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .upload-section:hover {
+        transform: translateY(-5px);
+      }
+
+      .drop-zone {
+        border: 3px dashed var(--primary-green);
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(76, 175, 80, 0.1);
+      }
+
+      .drop-zone:hover {
+        border-color: var(--border-orange);
+        background: var(--border-hover-orange);
+      }
+
+      .drop-zone.drag-over {
+        border-color: var(--border-orange);
+        background: rgba(255, 152, 0, 0.2);
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .preview-container {
+        margin: 2rem 0;
+        text-align: center;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: all 0.3s ease;
+      }
+
+      .preview-container.show {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .submit-btn {
+        background: var(--primary-green);
+        color: var(--white-bg);
+        border: none;
+        padding: 1rem 2rem;
+        font-size: 1.1em;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: block;
+        margin: 2rem auto;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      .submit-btn.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .submit-btn:hover {
+        background: var(--hover-green);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+      }
+
+      .results {
+        display: none;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .result-label {
+        color: var(--gray-text);
+        font-size: 0.9em;
+        margin-bottom: 0.5rem;
+      }
+
+      .result-value {
+        color: var(--dark-green);
+        font-size: 1.2em;
+        font-weight: 600;
+      }
+
+      .model-info {
+        margin-top: 3rem;
+        padding: 2rem;
+        background: var(--light-gray-bg);
+        border-radius: 12px;
+        animation: fadeInUp 0.8s ease;
+      }
+
+      .model-info h2 {
+        color: var(--dark-green);
+        margin-bottom: 1rem;
+        font-size: 1.8em;
+      }
+
+      .model-info p {
+        color: var(--gray-text);
+        line-height: 1.8;
+        margin-bottom: 1rem;
+      }
+
+      .feature-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .feature-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+      }
+
+      .feature-item:hover {
+        transform: translateY(-3px);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+        .container {
+          padding: 1rem;
+        }
+        .header h1 {
+          font-size: 2em;
+        }
+        .drop-zone {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>AI Waste Classification</h1>
+        <p>
+          Upload an image to identify whether waste is organic or recyclable
+        </p>
+      </header>
+
+      <main class="upload-section">
+        <div class="drop-zone" id="dropZone">
+          <p>Drag and drop your image here or click to browse</p>
+          <input
+            type="file"
+            class="file-input"
+            id="fileInput"
+            accept="image/*"
+          />
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+          <img src="" alt="Preview" class="preview-image" id="previewImage" />
+        </div>
+
+        <button class="submit-btn" id="submitBtn">Analyze Image</button>
+        <div class="loading" id="loading"></div>
+      </main>
+
+      <section class="results" id="results">
+        <div class="result-card">
+          <div class="result-label">Classification</div>
+          <div class="result-value" id="wasteType">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Confidence</div>
+          <div class="result-value" id="confidence">-</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Processing Time</div>
+          <div class="result-value" id="processingTime">-</div>
+        </div>
+      </section>
+
+      <section class="model-info">
+        <h2>About Our AI Model</h2>
+        <p>
+          Our waste classification system uses state-of-the-art deep learning
+          technology based on the MobileNetV2 architecture. The model has been
+          trained on thousands of waste images to ensure accurate
+          classification.
+        </p>
+        <ul class="feature-list">
+          <li class="feature-item">Real-time Analysis</li>
+          <li class="feature-item">High Accuracy</li>
+          <li class="feature-item">Fast Processing</li>
+          <li class="feature-item">Mobile Optimized</li>
+          <li class="feature-item">Interactive UI</li>
+        </ul>
+      </section>
+    </div>
+
+    <script>
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      const previewContainer = document.getElementById("previewContainer");
+      const previewImage = document.getElementById("previewImage");
+      const submitBtn = document.getElementById("submitBtn");
+      const loading = document.getElementById("loading");
+      const results = document.getElementById("results");
+      const wasteType = document.getElementById("wasteType");
+      const confidence = document.getElementById("confidence");
+      const processingTime = document.getElementById("processingTime");
+
+      // Prevent default drag behaviors
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // Handle drag & drop
+      dropZone.addEventListener("dragenter", () =>
+        dropZone.classList.add("drag-over")
+      );
+      dropZone.addEventListener("dragleave", () =>
+        dropZone.classList.remove("drag-over")
+      );
+      dropZone.addEventListener("drop", (e) => {
+        dropZone.classList.remove("drag-over");
+        handleFiles(e.dataTransfer.files);
+      });
+
+      // Handle file selection
+      dropZone.addEventListener("click", () => fileInput.click());
+      fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
+
+      function handleFiles(files) {
+        if (files.length > 0) {
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              previewImage.src = e.target.result;
+              previewContainer.classList.add("show");
+              submitBtn.classList.add("show");
+              results.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+          } else {
+            alert("Please upload an image file");
+          }
+        }
+      }
+
+      // Handle form submission
+      submitBtn.addEventListener("click", async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        loading.style.display = "block";
+        submitBtn.disabled = true;
+        results.style.display = "none";
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await response.json();
+
+          if (data.error) throw new Error(data.error);
+
+          wasteType.textContent = data.class;
+          confidence.textContent = data.confidence;
+          processingTime.textContent = data.processing_time;
+
+          results.style.display = "block";
+        } catch (error) {
+          alert("Error: " + error.message);
+        } finally {
+          loading.style.display = "none";
+          submitBtn.disabled = false;
+        }
+      });
+
+      // WebSocket connection for real-time IoT updates
+      const ws = new WebSocket("ws://your-server-address:port/ws");
+
+      ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        // If this is an IoT-triggered classification
+        if (data.source === "iot") {
+          // Update UI with IoT image
+          previewImage.src = `data:image/jpeg;base64,${data.image}`;
+          previewContainer.classList.add("show");
+
+          // Update results
+          wasteType.textContent = data.class;
+          confidence.textContent = data.confidence;
+          processingTime.textContent = data.processing_time;
+
+          results.style.display = "block";
+
+          // Add IoT indicator
+          const iotIndicator = document.createElement("div");
+          iotIndicator.className = "result-card";
+          iotIndicator.innerHTML = `
+            <div class="result-label">Source</div>
+            <div class="result-value">IoT Device</div>
+        `;
+          results.appendChild(iotIndicator);
+        }
+      };
+
+      // Add error handling for WebSocket
+      ws.onerror = function (error) {
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = function () {
+        console.log("WebSocket connection closed");
+        // Implement reconnection logic if needed
+      };
+    </script>
+  </body>
+</html>
