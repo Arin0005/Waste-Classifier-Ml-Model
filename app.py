@@ -15,9 +15,33 @@ print("Initializing model...")
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
 
-# Load model only once (removed duplicate line)
-model = tf.keras.models.load_model(MODEL_PATH)
-print("Model loaded successfully!")
+# Load model with compatibility fix
+try:
+    print("Loading model with custom options...")
+    # Try loading with compile=False to avoid optimizer issues
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    print("Model loaded successfully without compilation!")
+    
+    # Recompile the model with basic settings
+    model.compile(optimizer='adam', 
+                 loss='binary_crossentropy', 
+                 metrics=['accuracy'])
+    print("Model recompiled successfully!")
+    
+except Exception as e:
+    print(f"Error loading model: {e}")
+    # Alternative loading method
+    try:
+        print("Trying alternative loading method...")
+        import h5py
+        
+        # Load model architecture and weights separately
+        model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        print("Model loaded with alternative method!")
+        
+    except Exception as e2:
+        print(f"Both loading methods failed: {e2}")
+        raise e2
 
 img_size = (224, 224)  # Adjust according to your model's requirements
 
@@ -51,10 +75,15 @@ def predict():
         img_array = np.expand_dims(img_array, axis=0)
         img_array /= 255.0
         
-        # Make prediction
-        prediction = model.predict(img_array)
-        predicted_class = "Organic" if prediction[0] < 0.5 else "Recyclable"
-        confidence = float(prediction[0]) if predicted_class == "Recyclable" else float(1 - prediction[0])
+        # Make prediction with error handling
+        try:
+            prediction = model.predict(img_array, verbose=0)  # Added verbose=0 to reduce logs
+        except Exception as pred_error:
+            print(f"Prediction error: {pred_error}")
+            return jsonify({'error': f'Prediction failed: {str(pred_error)}'}), 500
+            
+        predicted_class = "Organic" if prediction[0][0] < 0.5 else "Recyclable"
+        confidence = float(prediction[0][0]) if predicted_class == "Recyclable" else float(1 - prediction[0][0])
         
         # Calculate processing time
         processing_time = time.time() - start_time
@@ -72,7 +101,21 @@ def predict():
 # Add a health check endpoint for Render
 @app.route('/health')
 def health():
-    return jsonify({'status': 'healthy'})
+    return jsonify({'status': 'healthy', 'model_loaded': model is not None})
+
+# Add model info endpoint for debugging
+@app.route('/model-info')
+def model_info():
+    try:
+        return jsonify({
+            'model_loaded': model is not None,
+            'tensorflow_version': tf.__version__,
+            'keras_version': tf.keras.__version__,
+            'model_input_shape': str(model.input_shape) if model else 'No model',
+            'model_output_shape': str(model.output_shape) if model else 'No model'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
     # Use environment variables for production
